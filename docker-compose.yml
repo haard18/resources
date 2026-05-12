@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://resourcer:resourcer123@postgres:5432/resourcer?schema=public
     depends_on:
@@ -21,8 +19,6 @@ services:
       - POSTGRES_USER=resourcer
       - POSTGRES_PASSWORD=resourcer123
       - POSTGRES_DB=resourcer
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
