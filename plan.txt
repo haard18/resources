@@ -1,0 +1,7 @@
+nextjs {
+  name = "nextjs"
+  schema = "prisma/schema.prisma"
+  migrate = ["npx prisma db push"]
+  generate = ["npx prisma generate"]
+  generate_anonymous = ["npx prisma generate --no-engine"]
+}
