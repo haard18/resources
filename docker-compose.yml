@@ -8,10 +8,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
 
   postgres:
     image: postgres:16-alpine
