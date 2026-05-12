@@ -1,6 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, KeyboardEvent } from 'react'
+
+interface Tag {
+  id: number
+  name: string
+}
 
 interface Resource {
   id: number
@@ -9,6 +14,7 @@ interface Resource {
   description: string
   submittedBy: string
   createdAt: string
+  tags: { tag: Tag }[]
 }
 
 const TEAM_MEMBERS = [
@@ -29,34 +35,77 @@ const MEMBER_COLORS: Record<string, string> = {
 
 export default function Home() {
   const [resources, setResources] = useState<Resource[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
   const [filter, setFilter] = useState<string>('')
+  const [tagFilter, setTagFilter] = useState<string>('')
   const [form, setForm] = useState({ title: '', link: '', description: '', submittedBy: 'haard' })
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+  const [tagInput, setTagInput] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const fetchResources = async () => {
     setLoading(true)
-    const url = filter ? `/api/resources?submittedBy=${filter}` : '/api/resources'
+    const params = new URLSearchParams()
+    if (filter) params.set('submittedBy', filter)
+    if (tagFilter) params.set('tag', tagFilter)
+    const url = `/api/resources${params.toString() ? '?' + params.toString() : ''}`
     const res = await fetch(url)
     const data = await res.json()
     setResources(data)
     setLoading(false)
   }
 
+  const fetchTags = async () => {
+    const res = await fetch('/api/tags')
+    const data = await res.json()
+    setTags(data)
+  }
+
   useEffect(() => {
     fetchResources()
-  }, [filter])
+    fetchTags()
+  }, [filter, tagFilter])
+
+  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      const name = tagInput.trim().toLowerCase()
+      if (name && !selectedTags.find(t => t.name === name)) {
+        const existing = tags.find(t => t.name === name)
+        if (existing) {
+          setSelectedTags([...selectedTags, existing])
+        } else {
+          setSelectedTags([...selectedTags, { id: Date.now(), name }])
+        }
+        setTagInput('')
+      }
+    }
+    if (e.key === 'Backspace' && !tagInput && selectedTags.length) {
+      setSelectedTags(selectedTags.slice(0, -1))
+    }
+  }
+
+  const removeTag = (tagName: string) => {
+    setSelectedTags(selectedTags.filter(t => t.name !== tagName))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     await fetch('/api/resources', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        tags: selectedTags.map(t => t.name),
+      }),
     })
     setForm({ title: '', link: '', description: '', submittedBy: form.submittedBy })
+    setSelectedTags([])
+    setTagInput('')
     setShowForm(false)
     fetchResources()
+    fetchTags()
   }
 
   const handleDelete = async (id: number) => {
@@ -78,7 +127,7 @@ export default function Home() {
 
       <div className="controls">
         <div className="filter-group">
-          <label htmlFor="filter">Filter by</label>
+          <label htmlFor="filter">By</label>
           <select
             id="filter"
             value={filter}
@@ -87,6 +136,19 @@ export default function Home() {
             <option value="">Everyone</option>
             {TEAM_MEMBERS.map((m) => (
               <option key={m.name} value={m.name}>{m.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="filter-group">
+          <label htmlFor="tagFilter">Tag</label>
+          <select
+            id="tagFilter"
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+          >
+            <option value="">All tags</option>
+            {tags.map((t) => (
+              <option key={t.id} value={t.name}>{t.name}</option>
             ))}
           </select>
         </div>
@@ -129,6 +191,26 @@ export default function Home() {
                 <option key={m.name} value={m.name}>{m.label}</option>
               ))}
             </select>
+          </div>
+          <div className="form-row">
+            <div className="tag-input-container">
+              <div className="tag-input-display">
+                {selectedTags.map(tag => (
+                  <span key={tag.name} className="tag-chip">
+                    {tag.name}
+                    <button type="button" onClick={() => removeTag(tag.name)}>×</button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  placeholder="Add tags (press Enter)"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKeyDown}
+                  className="tag-input-field"
+                />
+              </div>
+            </div>
           </div>
           <div className="form-actions">
             <button type="button" onClick={() => setShowForm(false)}>Cancel</button>
@@ -181,6 +263,13 @@ export default function Home() {
               </h3>
               {resource.description && (
                 <p className="resource-description">{resource.description}</p>
+              )}
+              {resource.tags.length > 0 && (
+                <div className="resource-tags">
+                  {resource.tags.map(({ tag }) => (
+                    <span key={tag.id} className="tag-badge">{tag.name}</span>
+                  ))}
+                </div>
               )}
               <a href={resource.link} target="_blank" rel="noopener noreferrer" className="resource-link">
                 {resource.link.length > 50 ? resource.link.slice(0, 50) + '...' : resource.link} →

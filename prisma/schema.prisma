@@ -14,4 +14,20 @@ model Resource {
   description String   @default("")
   submittedBy String
   createdAt   DateTime @default(now())
+  tags        ResourceTag[]
+}
+
+model Tag {
+  id        Int           @id @default(autoincrement())
+  name      String        @unique
+  resources ResourceTag[]
+}
+
+model ResourceTag {
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  resourceId Int
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId      Int
+
+  @@id([resourceId, tagId])
 }

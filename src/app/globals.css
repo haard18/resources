@@ -268,6 +268,72 @@ button:active {
   margin-top: 1rem;
 }
 
+.tag-input-container {
+  flex: 1;
+}
+
+.tag-input-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  min-height: 50px;
+  border: var(--border);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.tag-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.tag-chip button {
+  background: transparent;
+  border: none;
+  color: var(--paper);
+  padding: 0;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.tag-input-field {
+  flex: 1;
+  min-width: 150px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0.25rem;
+}
+
+.tag-input-field:focus {
+  outline: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.resource-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tag-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--paper-dark);
+  border: 1px solid var(--ink);
+  text-transform: lowercase;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 1rem;
