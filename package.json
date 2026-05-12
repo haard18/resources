@@ -9,7 +9,7 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "postinstall": "prisma generate"
+    "postinstall": "npx prisma@5.16.1 generate"
   },
   "dependencies": {
     "@prisma/client": "5.16.1",
@@ -24,5 +24,8 @@
     "eslint": "^10.3.0",
     "prisma": "5.16.1",
     "typescript": "5.5.3"
+  },
+  "prisma": {
+    "pinPlatform": true
   }
 }
