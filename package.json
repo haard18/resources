@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "db:push": "prisma db push",
-    "db:generate": "prisma generate",
-    "postinstall": "npx prisma@5.16.1 generate"
+    "db:push": "node node_modules/prisma/build/index.js db push",
+    "db:generate": "node node_modules/prisma/build/index.js generate",
+    "postinstall": "node node_modules/prisma/build/index.js generate"
   },
   "dependencies": {
     "@prisma/client": "5.16.1",
@@ -24,8 +24,5 @@
     "eslint": "^10.3.0",
     "prisma": "5.16.1",
     "typescript": "5.5.3"
-  },
-  "prisma": {
-    "pinPlatform": true
   }
 }
